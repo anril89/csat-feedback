@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSAT Feedback</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .emojis {
+      font-size: 2.5rem;
+      cursor: pointer;
+    }
+    .emojis span {
+      margin: 0 10px;
+      transition: transform 0.2s;
+    }
+    .emojis span:hover {
+      transform: scale(1.3);
+    }
+    #thankYou {
+      display: none;
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>How satisfied are you with your experience?</h1>
+  <div class="emojis">
+    <span onclick="sendFeedback(1)">&#128545;</span>
+    <span onclick="sendFeedback(2)">&#128577;</span>
+    <span onclick="sendFeedback(3)">&#128528;</span>
+    <span onclick="sendFeedback(4)">&#128578;</span>
+    <span onclick="sendFeedback(5)">&#128516;</span>
+  </div>
+  <div id="thankYou">Thanks for your feedback!</div>
+
+  <script>
+    async function sendFeedback(score) {
+      const thankYou = document.getElementById("thankYou");
+      thankYou.style.display = "block";
+
+      const formData = new FormData();
+      formData.append("score", score);
+      formData.append("source", new URLSearchParams(window.location.search).get("source") || "");
+
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbxTPJVkAxPm6VrkEECvHXsh4S5wm4SRt-UwmYlckrT_YPGXvvinZDp5NF-EsY4TjdtB/exec", {
+          method: "POST",
+          body: formData
+        });
+
+        console.log("Feedback sent using FormData:", response);
+      } catch (err) {
+        console.error("Error sending to Google Sheets:", err);
+      }
+    }
+  </script>
+</body>
+</html>
