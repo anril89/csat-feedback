@@ -29,6 +29,10 @@
     .emojis span:hover {
       transform: scale(1.3);
     }
+    .emojis.disabled span {
+      opacity: 0.3;
+      pointer-events: none;
+    }
     #thankYou {
       display: none;
       margin-top: 20px;
@@ -45,7 +49,7 @@
 </head>
 <body>
   <h1>How satisfied are you with your experience?</h1>
-  <div class="emojis">
+  <div class="emojis" id="emojiContainer">
     <span onclick="sendFeedback(1)">&#128545;</span>
     <span onclick="sendFeedback(2)">&#128577;</span>
     <span onclick="sendFeedback(3)">&#128528;</span>
@@ -59,6 +63,7 @@
     async function sendFeedback(score) {
       const thankYou = document.getElementById("thankYou");
       const alreadyVoted = document.getElementById("alreadyVoted");
+      const emojiContainer = document.getElementById("emojiContainer");
 
       const source = new URLSearchParams(window.location.search).get("source") || "default";
       const storageKey = `lastVote_${source}`;
@@ -70,12 +75,14 @@
         const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
         if (diffDays < 7) {
           alreadyVoted.style.display = "block";
+          emojiContainer.classList.add("disabled");
           return;
         }
       }
 
       localStorage.setItem(storageKey, now.toISOString());
       thankYou.style.display = "block";
+      emojiContainer.classList.add("disabled");
 
       const formData = new FormData();
       formData.append("score", score);
@@ -93,6 +100,23 @@
         console.error("Error sending to Google Sheets:", err);
       }
     }
+
+    // Disable emojis if already voted
+    window.addEventListener("DOMContentLoaded", () => {
+      const source = new URLSearchParams(window.location.search).get("source") || "default";
+      const storageKey = `lastVote_${source}`;
+      const lastVote = localStorage.getItem(storageKey);
+      const now = new Date();
+
+      if (lastVote) {
+        const lastDate = new Date(lastVote);
+        const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+        if (diffDays < 7) {
+          document.getElementById("emojiContainer").classList.add("disabled");
+          document.getElementById("alreadyVoted").style.display = "block";
+        }
+      }
+    });
   </script>
 </body>
 </html>
