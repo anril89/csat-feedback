@@ -58,12 +58,13 @@
       formData.append("source", new URLSearchParams(window.location.search).get("source") || "");
 
       try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbxTPJVkAxPm6VrkEECvHXsh4S5wm4SRt-UwmYlckrT_YPGXvvinZDp5NF-EsY4TjdtB/exec", {
+        await fetch("https://script.google.com/macros/s/AKfycbxTPJVkAxPm6VrkEECvHXsh4S5wm4SRt-UwmYlckrT_YPGXvvinZDp5NF-EsY4TjdtB/exec", {
           method: "POST",
+          mode: "no-cors",
           body: formData
         });
 
-        console.log("Feedback sent using FormData:", response);
+        console.log("Feedback sent (opaque response – CORS bypassed)");
       } catch (err) {
         console.error("Error sending to Google Sheets:", err);
       }
