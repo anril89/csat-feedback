@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSAT KPI Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .kpis {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .kpi {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 1rem 2rem;
+      flex: 1;
+      text-align: center;
+    }
+    canvas {
+      background: white;
+      border-radius: 1rem;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>CSAT KPI Dashboard</h1>
+  <div class="kpis">
+    <div class="kpi">
+      <h2 id="avgScore">Avg. Score: –</h2>
+    </div>
+    <div class="kpi">
+      <h2 id="totalResponses">Total Responses: –</h2>
+    </div>
+  </div>
+  <canvas id="dailyChart" height="100"></canvas>
+
+  <script>
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4lk8MkXPvXuPbEoVQGbovtqxFTwQCr6oM156mD0e_WRDTaiuzdE32dyM6c7VjR_o47WxpRr1UV6VX/pub?gid=0&single=true&output=csv";
+
+    async function fetchCSVData() {
+      const res = await fetch(csvUrl);
+      const data = await res.text();
+      return data.split('\n').slice(1).map(row => {
+        const [timestamp, score, source] = row.split(',');
+        return {
+          date: new Date(timestamp).toISOString().split('T')[0],
+          score: parseInt(score),
+          source: source?.trim()
+        };
+      }).filter(entry => !isNaN(entry.score));
+    }
+
+    function calculateKPIs(data) {
+      const total = data.length;
+      const avg = data.reduce((sum, d) => sum + d.score, 0) / total;
+      document.getElementById("avgScore").innerText = `Avg. Score: ${avg.toFixed(2)}`;
+      document.getElementById("totalResponses").innerText = `Total Responses: ${total}`;
+    }
+
+    function groupByDate(data) {
+      const map = {};
+      data.forEach(d => {
+        map[d.date] = (map[d.date] || 0) + 1;
+      });
+      return map;
+    }
+
+    function renderChart(dateCounts) {
+      const ctx = document.getElementById("dailyChart").getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: Object.keys(dateCounts),
+          datasets: [{
+            label: "Responses per day",
+            data: Object.values(dateCounts),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              precision: 0
+            }
+          }
+        }
+      });
+    }
+
+    async function initDashboard() {
+      const data = await fetchCSVData();
+      calculateKPIs(data);
+      const dateCounts = groupByDate(data);
+      renderChart(dateCounts);
+    }
+
+    initDashboard();
+  </script>
+</body>
+</html>
