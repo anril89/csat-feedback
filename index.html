@@ -60,13 +60,14 @@
   <div id="alreadyVoted">You have already submitted feedback for this experience.</div>
 
   <script>
+    const source = new URLSearchParams(window.location.search).get("source") || "default";
+    const storageKey = `lastVote_${source}`;
+
     async function sendFeedback(score) {
       const thankYou = document.getElementById("thankYou");
       const alreadyVoted = document.getElementById("alreadyVoted");
       const emojiContainer = document.getElementById("emojiContainer");
 
-      const source = new URLSearchParams(window.location.search).get("source") || "default";
-      const storageKey = `lastVote_${source}`;
       const lastVote = localStorage.getItem(storageKey);
       const now = new Date();
 
@@ -80,6 +81,7 @@
         }
       }
 
+      // Logga svaret första gången
       localStorage.setItem(storageKey, now.toISOString());
       thankYou.style.display = "block";
       emojiContainer.classList.add("disabled");
@@ -101,10 +103,8 @@
       }
     }
 
-    // Disable emojis if already voted
+    // Visa om användaren redan röstat men utan att blockera förstaklick
     window.addEventListener("DOMContentLoaded", () => {
-      const source = new URLSearchParams(window.location.search).get("source") || "default";
-      const storageKey = `lastVote_${source}`;
       const lastVote = localStorage.getItem(storageKey);
       const now = new Date();
 
@@ -112,7 +112,6 @@
         const lastDate = new Date(lastVote);
         const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
         if (diffDays < 7) {
-          document.getElementById("emojiContainer").classList.add("disabled");
           document.getElementById("alreadyVoted").style.display = "block";
         }
       }
