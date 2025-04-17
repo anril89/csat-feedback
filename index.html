@@ -19,9 +19,16 @@
     .spacer {
       height: 10vh;
     }
-    img.logo {
-      max-width: 200px;
+    .logo-wrapper {
+      background-color: black;
+      padding: 10px;
+      display: inline-block;
       margin-bottom: 40px;
+    }
+    img.logo {
+      width: 400px;
+      height: auto;
+      display: block;
     }
     h1 {
       margin-bottom: 20px;
@@ -57,7 +64,9 @@
 </head>
 <body>
   <div class="spacer"></div>
-  <img src="https://www.profoto.com/globalassets/logo_desktop.svg" alt="Profoto Logo" class="logo" />
+  <div class="logo-wrapper">
+    <img src="https://www.profoto.com/globalassets/logo_desktop.svg" alt="Profoto Logo" class="logo" />
+  </div>
   <h1>How satisfied are you with your service experience?</h1>
   <div class="emojis" id="emojiContainer">
     <span onclick="sendFeedback(1)">&#128545;</span>
